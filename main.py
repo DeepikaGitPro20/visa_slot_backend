@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 
 # 1. Database Setup
-SQLALCHEMY_DATABASE_URL = "sqlite:////tmp/visa_slots.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:////./visa_slots.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
