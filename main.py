@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 
 # 1. Database Setup
-SQLALCHEMY_DATABASE_URL = "sqlite:////tmp/visa_slots.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:////.visa_slots.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -62,13 +62,20 @@ def read_root():
 def subscribe(subscriber: SubscriberCreate):
     db = SessionLocal()
     try:
-        # Check if the user is already subscribed for this location
         existing_sub = db.query(Subscriber).filter(
-            Subscriber.telegram_chat_id == subscriber.telegram_chat_id
+            Subscriber.telegram_chat_id == subscriber.telegram_chat_id,
+            Subscriber.location == subscriber.location
         ).first()
 
         if existing_sub:
             return {"status": "info", "message": "Meeru already subscribe ayyaru!"}
+
+        new_sub = Subscriber(telegram_chat_id=subscriber.telegram_chat_id, location=subscriber.location)
+        db.add(new_sub)
+        db.commit()
+        db.refresh(new_sub) # ఇది డేటా సేవ్ అయ్యిందని కన్ఫర్మ్ చేస్తుంది
+        return {"status": "success", "message": "Successfully Subscribed!"}
+            
 
         # If not, add new subscriber
         new_sub = Subscriber(telegram_chat_id=subscriber.telegram_chat_id, location=subscriber.location)
